@@ -1,9 +1,9 @@
 /*
-	void give_memory(int**&, int, int)//первый способ. Подумайте, почему обязательно надо тут &
-	int** give_memory(int, int)//второй способ. Подумайте, можно ли и безопасно ли тут напісать int**& give_memory
-	void init_array(int **,int,int)
-	void print_array(int **,int,int)
-	void free_array(int **,int)
+		void give_memory(int**&, int, int)//РїРµСЂРІС‹Р№ СЃРїРѕСЃРѕР±. РџРѕРґСѓРјР°Р№С‚Рµ, РїРѕС‡РµРјСѓ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РЅР°РґРѕ С‚СѓС‚ &
+		int** give_memory(int, int)//РІС‚РѕСЂРѕР№ СЃРїРѕСЃРѕР±. РџРѕРґСѓРјР°Р№С‚Рµ, РјРѕР¶РЅРѕ Р»Рё Рё Р±РµР·РѕРїР°СЃРЅРѕ Р»Рё С‚СѓС‚ РЅР°РїС–СЃР°С‚СЊ int**& give_memory
+		void init_array(int **,int,int)
+		void print_array(int **,int,int)
+		void free_array(int **,int)
 */
 
 #include <iostream>
@@ -19,8 +19,6 @@ void print_array(int**, int, int);
 void free_array(int**, int);
 
 int main() {
-
-	int **M;
 	system("pause");
 	return 0;
 }
