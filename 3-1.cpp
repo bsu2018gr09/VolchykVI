@@ -13,14 +13,13 @@
 #include <cstring>
 #include <Windows.h>
 
-const int BUFF_SIZE = 512;
 
 using namespace std;
 
-void getLine(char*, const int);
 void printStr(char*[], const int);
-void getMem(char**, const int, const int);
-void sortStr(char*, char**, char**);
+void getMem(char**, const int);
+void sortStr(char*, char*[], char*[], int&, int&);
+void delMem(char**, const int);
 
 int main() {
 
@@ -28,26 +27,34 @@ int main() {
 	SetConsoleOutputCP(1251);
 	setlocale(LC_ALL, "Russian");
 
+	const int BUFF_SIZE = 1024;
+
 	char buff[BUFF_SIZE];
 	char* vowelStr[BUFF_SIZE];
 	char* otherStr[BUFF_SIZE];
+	int posOth = 0;
+	int posVow = 0;
 
-	getLine(buff, BUFF_SIZE);
-	sortStr(buff, vowelStr, otherStr);
+	cin.getline(buff, BUFF_SIZE);
+	sortStr(buff, vowelStr, otherStr, posVow, posOth);
+
+	printStr(otherStr, posOth);
+	printStr(vowelStr, posVow);	
+	
+	delMem(vowelStr, posVow);
+	delMem(otherStr, posOth);
 
 	system("pause");
 	return 0;
 }
 
-void sortStr(char* line, char** vow, char** oth) {
+void sortStr(char* line, char* vow[], char* oth[], int& posVow, int& posOth) {
 
-	int pos_to_push_vow = 0;
-	int pos_to_push_oth = 0;
 
 	const char* check = "уеёыаоэяиюУЕЁЫАОЭЯИЮeyuioaEYUIOA";
 	char* nexttoken = NULL;
 
-	char* word = strtok_s(line, " ,.-!?", &nexttoken);
+	char* word = strtok_s(line, " ,.-!?;\t", &nexttoken);
 
 	while (word != NULL)
 	{
@@ -57,26 +64,36 @@ void sortStr(char* line, char** vow, char** oth) {
 		for (int k = 0; k < word_size; k++) {
 			if (strchr(check, word[k])) count++;
 		}
+
 		if (count == 1) {
-			getMem(vow, word_size + 1, pos_to_push_vow);
-			strcpy_s(vow[pos_to_push_vow], word_size + 1, word);
-			pos_to_push_vow++;
+			getMem(vow + posVow, word_size + 1);
+			strcpy_s(vow[posVow], word_size + 1, word);
+			posVow++;
 		}
 		else {
-			getMem(oth, word_size + 1, pos_to_push_oth);
-			strcpy_s(oth[pos_to_push_oth], word_size + 1, word);
-			pos_to_push_oth++;
+			getMem(oth + posOth, word_size + 1);
+			strcpy_s(oth[posOth], word_size + 1, word);
+			posOth++;
 		}
 
 		word = strtok_s(NULL, " ,.-!?", &nexttoken);
 	}
 
-	printStr(oth, pos_to_push_oth);
-	printStr(vow, pos_to_push_vow);
 }
 
-void getMem(char** str, const int size, const int pos) {
-	*(str + pos) = new char[size];
+void delMem(char** str, const int size) {
+	for (int i = 0; i < size; i++) {
+		delete[] * (str + i);
+		*(str + i) = nullptr;
+	}
+}
+
+void getMem(char** str, const int size) {
+	*str = new (nothrow) char[size];
+	if (!str) {
+		cout << "Ошибка выделения памяти!\n";
+		exit(1);
+	}
 }
 
 void printStr(char* str[], const int size) {
@@ -84,8 +101,4 @@ void printStr(char* str[], const int size) {
 		cout << *(str + i) << ' ';
 	}
 	cout << endl;
-}
-
-void getLine(char* str, const int size) {
-	cin.getline(str, BUFF_SIZE);
 }
