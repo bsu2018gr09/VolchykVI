@@ -5,25 +5,21 @@
 #include <iostream>
 #include <ctime>
 
-
-
 int defArraySize();
 void printArray(int*, const int);
 void fillingWithRandNumbers(int*, int, const int, const int);
 void movingArray(int*, const int, const int);
 void getRange(int&, int&);
 void getMove(int&);
-
+void delMem(int*);
+void getMem(int*&, const int);
 
 int main() {
 
 	setlocale(LC_ALL, "rus");
 	int N = defArraySize(), a, b, k;
-	int* arr = new (std::nothrow) int[N];
-	if (!arr) {
-		std::cout << "Memory allocation error";
-		exit(1);
-	}
+	int* arr;
+	getMem(arr, N);
 	getRange(a, b);
 	getMove(k);
 	fillingWithRandNumbers(arr, N, a, b);
@@ -31,11 +27,23 @@ int main() {
 	movingArray(arr, N, k);
 	printArray(arr, N);
 
-	delete[] arr;
-	arr = nullptr;
+	delete(arr);
 
 	system("pause");
 	return 0;
+}
+
+void delMem(int* ptr) {
+	delete[] ptr;
+	ptr = nullptr;
+}
+
+void getMem(int*& ptr, const int N) {
+	ptr = new (std::nothrow) int[N];
+	if (!ptr) {
+		std::cout << "Ошибка выделения памяти!\n";
+		exit(1);
+	}
 }
 
 void getMove(int& k) {

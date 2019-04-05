@@ -9,33 +9,37 @@ int getSize();
 void printArray(int*, const int);
 void countEqualValues(int*, const int);
 void insertSort(int*, const int);
-void fillingWithRandNumbers(int*, int, const int, const int);
+void fillingWithRandNumbers(int*, int);
 void getRange(int&, int&);
+void getMem(int*&, const int);
+void delMem(int*);
 
 int main() {
 
 	setlocale(LC_ALL, "rus");
-	int N = getSize(), a, b;
-	int* arr = new int[N];
-	if (!arr) {
-		std::cout << "Ошибка выделения памяти\n";
-		exit(1);
-	}
-	getRange(a, b);
-	fillingWithRandNumbers(arr, N, a, b);
-	printArray(arr, N);
-	insertSort(arr, N);
-	countEqualValues(arr, N);
-	delete[] arr;
-	arr = nullptr;
-
+	int N = getSize();
+	int* A;
+	getMem(A, N);
+	fillingWithRandNumbers(A, N);
+	printArray(A, N);
+	insertSort(A, N);
+	countEqualValues(A, N);
+	delete(A);
 	system("pause");
 	return 0;
 }
 
-void getRange(int& a, int& b) {
-	std::cout << "Введите диапазон значений (a,b): ";
-	std::cin >> a >> b;
+void delMem(int* ptr) {
+	delete[] ptr;
+	ptr = nullptr;
+}
+
+void getMem(int*& ptr, const int N) {
+	ptr = new (std::nothrow) int[N];
+	if (!ptr) {
+		std::cout << "Ошибка выделения памяти!\n";
+		exit(1);
+	}
 }
 
 int getSize() {
@@ -51,10 +55,10 @@ int getSize() {
 	return N;
 }
 
-void fillingWithRandNumbers(int* A, int N, const int a, const int b) {
+void fillingWithRandNumbers(int* A, int N) {
 	srand(time(0));
 	while (N-- > 0)
-		*(A + N) = rand() % (b - a) + a;
+		*(A + N) = rand() % 11;
 }
 
 void insertSort(int* A, const int N) {

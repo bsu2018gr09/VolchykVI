@@ -5,38 +5,41 @@
 #include <ctime>
 #include <algorithm>
 
-
-
 int defArraySize();
 void printArray(int*, const int);
-void fillingWithRandNumbers(int*, int, const int, const int);
+void fillingWithRandNumbers(int*, int);
 void maxSeries(int* A, const int N);
 void getRange(int&, int&);
+void getMem(int*&, const int);
+void delMem(int*);
 
 int main() {
-
 	setlocale(LC_ALL, "rus");
-	int N = defArraySize(), a, b;
-	int* arr = new (std::nothrow) int[N];
-	if (!arr) {
-		std::cout << "Ошибка выделения памяти\n";
-		exit(1);
-	}
-	getRange(a, b);
-	fillingWithRandNumbers(arr, N, a, b);
+
+	int N = defArraySize();
+	int* arr;
+
+	getMem(arr, N);
+	fillingWithRandNumbers(arr, N);
 	printArray(arr, N);
 	maxSeries(arr, N);
-
-	delete[] arr;
-	arr = nullptr;
+	delMem(arr);
 
 	system("pause");
 	return 0;
 }
 
-void getRange(int& a, int& b) {
-	std::cout << "Введите диапазон значений (a,b): ";
-	std::cin >> a >> b;
+void delMem(int* ptr) {
+	delete[] ptr;
+	ptr = nullptr;
+}
+
+void getMem(int*& ptr, const int N) {
+	ptr = new (std::nothrow) int[N];
+	if (!ptr) {
+		std::cout << "Ошибка выделения памяти!\n";
+		exit(1);
+	}
 }
 
 void printArray(int* A, const int N) {
@@ -60,10 +63,10 @@ int defArraySize() {
 	return N;
 }
 
-void fillingWithRandNumbers(int* A, int N, const int a, const int b) {
+void fillingWithRandNumbers(int* A, int N) {
 	srand(time(0));
 	while (N-- > 0)
-		*(A + N) = rand() % (b - a) + a;
+		*(A + N) = rand() % 10;
 }
 
 void maxSeries(int* A, const int N) {

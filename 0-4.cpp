@@ -12,28 +12,38 @@ void fillingWithRandNumbers(int*, int, const int, const int);
 void insertSort(int*, const int, const int);
 void getRange(int&, int&);
 void getNum(int&);
+void delMem(int*);
+void getMem(int*&, const int);
 
 int main() {
 
 	setlocale(LC_ALL, "rus");
 	int N = getSize();
-	int* arr = new (std::nothrow) int[N], a, b, k;
-	if (!arr) {
-		std::cout << "Ошибка выделения памяти\n";
-		exit(1);
-	}
+	int* arr, a, b, k;
+	getMem(arr, N);
 	getRange(a, b);
 	getNum(k);
 	fillingWithRandNumbers(arr, N, a, b);
 	printArray(arr, N);
 	insertSort(arr, N, k);
 	printArray(arr, N);
-
-	delete[] arr;
-	arr = nullptr;
+	delMem(arr);
 
 	system("pause");
 	return 0;
+}
+
+void delMem(int* ptr) {
+	delete[] ptr;
+	ptr = nullptr;
+}
+
+void getMem(int*& ptr, const int N) {
+	ptr = new (std::nothrow) int[N];
+	if (!ptr) {
+		std::cout << "Ошибка выделения памяти!\n";
+		exit(1);
+	}
 }
 
 void getNum(int& k) {
