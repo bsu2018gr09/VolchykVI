@@ -12,7 +12,11 @@
 using namespace std;
 
 int** getMemMatr(const int, const int);
-void destructor(int**&, const int);
+void delMatr(int**&, const int);
+template <class T>
+void delMem(T*);
+template <class T>
+T* getMem(const int);
 void fillWithRand(int**, const int, const int, const int, const int);
 void fillWithHand(int**, const int, const int);
 void fillWithFile(int**, const int, const int, ifstream&);
@@ -23,30 +27,48 @@ void getP(int&);
 void sortColls(int**, const int, const int, const int);
 void insertSort(int*, const int);
 void sortByMP(int**, const int, const int);
+void firstInput();
+void secondInput();
+void thirdInput();
+
+
+int main()
+{
+	setlocale(LC_ALL, "rus");
+
+	void(*fpoint[3])() = { firstInput, secondInput, thirdInput };
+	for (int i = 0; ;) {
+		cout << "0 - Хочу прочитать все данные из файла!\n";
+		cout << "1 - Не хочу вводить значения, пусть они генерируются сами!\n";
+		cout << "2 - Хочу ввести значения сам!\n";
+		cout << "3 - Завершить сеанс!\n";
+		cin >> i;
+		if (i == 3) break;
+		if (i >= 0 && i <= 3) fpoint[i]();
+	}
+	return 0;
+}
 
 void firstInput() {
-	int min, max, r, c, p;
-
-	char* roadTo = new char[128];
+	int r, c, p;
+	const int BUFF_SIZE = 128;
+	char* road = getMem<char>(BUFF_SIZE);
 	cout << "Введите путь к файлу: ";
-	cin >> roadTo;
+	cin >> road;
 	cout << endl;
-	ifstream input(roadTo);
+	ifstream input(road);
+	delMem(road);
 	input >> r;
 	input >> c;
 	input >> p;
 	int** X = getMemMatr(r, c);
-
-
-
 	fillWithFile(X, r, c, input);
 	printMatr(X, r, c);
 	sortByMP(X, r, c);
 	sortColls(X, r, c, p);
 	printMatr(X, r, c);
 
-	destructor(X, c);
-	delete[] roadTo;
+	delMatr(X, c);
 }
 
 void secondInput() {
@@ -64,8 +86,7 @@ void secondInput() {
 	sortColls(X, r, c, p);
 	printMatr(X, r, c);
 
-	destructor(X, c);
-	cout << "Кушатб подано!\n";
+	delMatr(X, c);
 }
 
 void thirdInput() {
@@ -79,29 +100,7 @@ void thirdInput() {
 	sortColls(X, r, c, p);
 	printMatr(X, r, c);
 
-	destructor(X, c);
-	cout << "Кушатб подано!\n";
-}
-
-int main()
-{
-
-	setlocale(LC_ALL, "rus");
-	
-	void(*fpoint[3])() = {firstInput, secondInput, thirdInput};
-
-
-
-	for (int i = 0; ;) {
-		cout << "0 - Хочу прочитать все данные из файла!\n";
-		cout << "1 - Не хочу вводить значения, пусть они генерируются сами!\n";
-		cout << "2 - Хочу ввести значения сам!\n";
-		cout << "3 - Завершить сеанс!\n";
-		cin >> i;
-		if (i == 3) break;
-		if (i >= 0 && i <= 3) fpoint[i]();
-	}
-	return 0;
+	delMatr(X, c);
 }
 
 void sortByMP(int** M, const int r, const int c)
@@ -228,7 +227,7 @@ void fillWithRand(int** A, const int min, const int max, const int r, const int 
 	}
 }
 
-void destructor(int**& A, const int c)
+void delMatr(int**& A, const int c)
 {
 	for (int i = 0; i < c; i++)
 	{
@@ -256,4 +255,20 @@ int** getMemMatr(const int r, const int c)
 		}
 	}
 	return A;
+}
+
+template <class T>
+void delMem(T* ptr) {
+	delete[] ptr;
+	ptr = nullptr;
+}
+
+template <class T>
+T* getMem(const int size) {
+	T* ptr = new (nothrow) T[size];
+	if (!ptr) {
+		cout << "Ошибка выделения памяти!\n";
+		exit(1);
+	}
+	return ptr;
 }
