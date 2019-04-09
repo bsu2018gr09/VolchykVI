@@ -6,6 +6,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <fstream>
 #include <iostream>
 using namespace std;
 
@@ -17,19 +18,19 @@ typedef __int32 LONG;
 //#########################
 //Описание структуры BMP-24
 
-typedef struct {
+struct BMPtype {
 	WORD bfType;
-} BMPtype;
+};
 
-typedef struct {
+struct BMPFILEHeader {
 public:
 	DWORD bfSize;
 	DWORD bfReserved;
 	DWORD bfOffBits;
 
-} BMPFILEHeader;
+};
 
-typedef struct {
+struct BMPINFOHeader {
 public:
 	DWORD biSize;
 	DWORD biWidth;
@@ -42,42 +43,42 @@ public:
 	LONG biYPelsPerMeter;
 	DWORD biClrUsed;
 	DWORD biClrImportant;
-} BMPINFOHeader;
+};
 
 //#############################
 //Описание цветового заполнения
 
-typedef struct {
+struct TRIPLEclr {
 public:
 	BYTE blue;
 	BYTE green;
 	BYTE red;
-} TRIPLEclr;
+};
 
-typedef struct {
-public: 
+struct GradCoords {
+public:
 	int x1;
 	int y1;
 	int x2;
 	int y2;
-} GradCoords;
+};
 
-typedef struct {
-public: 
+struct canvasSize {
+public:
 	int height;
 	int width;
 	int padding;
-} canvasSize;
+};
 
 
 template <class T1, class T2, class T3>
-void writeBMP24(T1&, T2&, T3&, FILE*);
+void writeBMP24(T1&, T2&, T3&, ofstream&);
 template <class T>
 T* getMem(const int);
 template <class T>
 void delMem(T*);
 void getBMP24Header(BMPtype&, BMPFILEHeader&, BMPINFOHeader&, canvasSize&);
-void writeCanvas(GradCoords&, TRIPLEclr&, TRIPLEclr&, FILE*, canvasSize&);
+void writeCanvas(GradCoords&, TRIPLEclr&, TRIPLEclr&, ofstream&, canvasSize&);
 void getRode(char*&);
 void clrPicker(TRIPLEclr&);
 void clrSet(TRIPLEclr&);
@@ -89,7 +90,7 @@ void free();
 int main() {
 
 	setlocale(LC_ALL, "rus");
-	
+
 	void(*fpoint[])() = { horizontal, vertical, free };
 
 	for (int i = 0; ;) {
@@ -105,7 +106,7 @@ int main() {
 	return 0;
 }
 
-void writeCanvas(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, FILE* o, canvasSize& size) {
+void writeCanvas(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, ofstream& o, canvasSize& size) {
 	BYTE padding[3] = { 0,0,0 };
 
 	int A = (crd.x2 - crd.x1);
@@ -119,18 +120,21 @@ void writeCanvas(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, FI
 			int C = A * j + B * i;
 			if (C <= C1) {
 				writeBMP24(originClr.blue, originClr.green, originClr.red, o);
-				fwrite(padding, 1, size.padding, o);
+				//fwrite(padding, 1, size.padding, o);
+				o.write((char*)padding, size.padding);
 			}
 			else if (C >= C2) {
 				writeBMP24(finishClr.blue, finishClr.green, finishClr.red, o);
-				fwrite(padding, 1, size.padding, o);
+				//fwrite(padding, 1, size.padding, o);
+				o.write((char*)padding, size.padding);
 			}
 			else {
 				BYTE blue = (originClr.blue*(C2 - C) + finishClr.blue*(C - C1)) / (C2 - C1);
 				BYTE green = (originClr.green*(C2 - C) + finishClr.green*(C - C1)) / (C2 - C1);
 				BYTE red = (originClr.red*(C2 - C) + finishClr.red*(C - C1)) / (C2 - C1);
 				writeBMP24(blue, green, red, o);
-				fwrite(padding, 1, size.padding, o);
+				//fwrite(padding, 1, size.padding, o);
+				o.write((char*)padding, size.padding);
 			}
 		}
 	}
@@ -138,16 +142,19 @@ void writeCanvas(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, FI
 
 
 template <class T1, class T2, class T3>
-void writeBMP24(T1& type, T2& file, T3& info, FILE* o) {
-	fwrite(&type, 1, sizeof(type), o);
-	fwrite(&file, 1, sizeof(file), o);
-	fwrite(&info, 1, sizeof(info), o);
+void writeBMP24(T1& type, T2& file, T3& info, ofstream& o) {
+	//fwrite(&type, 1, sizeof(type), o);
+	//fwrite(&file, 1, sizeof(file), o);
+	//fwrite(&info, 1, sizeof(info), o);
+	o.write((char*)&type, sizeof(type));
+	o.write((char*)&file, sizeof(file));
+	o.write((char*)&info, sizeof(info));
 }
 
 void getBMP24Header(BMPtype& type, BMPFILEHeader& file, BMPINFOHeader& info, canvasSize& size)
 {
 	size.padding = (4 - (size.width * 3) % 4) % 4;
-	int fileSize = size.height * (3*size.width + size.padding) + 54;
+	int fileSize = size.height * (3 * size.width + size.padding) + 54;
 	type.bfType = 0x4D42;
 	file.bfSize = fileSize;
 	file.bfReserved = 0;
@@ -259,7 +266,8 @@ void horizontal() {
 	char* rode = getMem<char>(BUFF_SIZE);
 	getRode(rode);
 
-	FILE* o = fopen(rode, "wb");
+	ofstream o(rode, ios::binary);
+	//FILE* o = fopen(rode, "wb");
 	delMem(rode);
 
 	crd.y1 = crd.y2 = 0;
@@ -291,7 +299,8 @@ void horizontal() {
 	}
 
 	writeCanvas(crd, originClr, finishClr, o, size);
-	fclose(o);
+	//fclose(o);
+	o.close();
 }
 
 void vertical() {
@@ -309,7 +318,8 @@ void vertical() {
 	char* rode = getMem<char>(BUFF_SIZE);
 	getRode(rode);
 
-	FILE* o = fopen(rode, "wb");
+	ofstream o(rode, ios::binary);
+	//FILE* o = fopen(rode, "wb");
 	delMem(rode);
 
 	crd.x1 = crd.x2 = 0;
@@ -341,7 +351,8 @@ void vertical() {
 	}
 
 	writeCanvas(crd, originClr, finishClr, o, size);
-	fclose(o);
+	//fclose(o);
+	o.close();
 }
 
 void free() {
@@ -359,7 +370,8 @@ void free() {
 	char* rode = getMem<char>(BUFF_SIZE);
 	getRode(rode);
 
-	FILE* o = fopen(rode, "wb");
+	ofstream o(rode, ios::binary);
+	//FILE* o = fopen(rode, "wb");
 	delMem(rode);
 
 	cout << "\nВведите размеры изображения (в пикселях ширина|высота): ";
@@ -388,5 +400,6 @@ void free() {
 		break;
 	}
 	writeCanvas(crd, originClr, finishClr, o, size);
-	fclose(o);
+	//fclose(o);
+	o.close();
 }
