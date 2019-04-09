@@ -19,6 +19,7 @@ typedef __int32 LONG;
 //Описание структуры BMP-24
 
 struct BMPtype {
+public:
 	WORD bfType;
 };
 
@@ -94,11 +95,13 @@ int main() {
 	void(*fpoint[])() = { horizontal, vertical, freeLinear, freeRadial };
 
 	for (int i = 0; ;) {
+		cout << "\n_____Меню_____\n";
 		cout << "0 - Горизонтальный линейный градиент\n";
 		cout << "1 - Вертикальный линейный градиент\n";
 		cout << "2 - Произвольный линейный градиент\n";
-		cout << "3 - Произвольный радиальный (новинка!) градиент\n";
+		cout << "3 - Произвольный радиальный градиент\n";
 		cout << "4 - Закрыть окно\n";
+		cout << ": ";
 		cin >> i;
 		if (i == 4) break;
 		if (i >= 0 && i < 4) { fpoint[i](); };
@@ -128,11 +131,9 @@ void writeCanvas(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, of
 				o.write((char*)padding, size.padding);
 			}
 			else {
-				double coff1 = (C2 - C) / (C2 - C1);
-				double coff2 = (C - C1) / (C2 - C1);
-				BYTE blue = (originClr.blue*0.9*coff1 + finishClr.blue*0.9*coff2);
-				BYTE green = (originClr.green*0.9*coff1 + finishClr.green*0.9*coff2);
-				BYTE red = (originClr.red*0.9*coff1 + finishClr.red*0.9*coff2);
+				BYTE blue = (originClr.blue*0.9*(C2 - C) / (C2 - C1) + finishClr.blue*0.9*(C - C1) / (C2 - C1));
+				BYTE green = (originClr.green*0.9*(C2 - C) / (C2 - C1) + finishClr.green*0.9*(C - C1) / (C2 - C1));
+				BYTE red = (originClr.red*0.9*(C2 - C) / (C2 - C1) + finishClr.red*0.9*(C - C1) / (C2 - C1));
 				writeBMP24(blue, green, red, o);
 				o.write((char*)padding, size.padding);
 			}
@@ -140,6 +141,32 @@ void writeCanvas(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, of
 	}
 }
 
+void writeCanvasRadial(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, ofstream& o, canvasSize& size) {
+	BYTE padding[3] = { 0,0,0 };
+
+	int A = (crd.x2 - crd.x1);
+	int B = (crd.y2 - crd.y1);
+
+	double radius = sqrt(pow(A, 2) + pow(B, 2));
+
+	for (int i = 0; i < size.height; i++) {
+		for (int j = 0; j < size.width; j++) {
+			float pointRadius = sqrt(pow(abs(crd.x1 - j), 2) + pow(abs(crd.y1 - i), 2));
+			if (pointRadius > radius) {
+				writeBMP24(finishClr.blue, finishClr.green, finishClr.red, o);
+				o.write((char*)padding, size.padding);
+			}
+			else {
+				float coff = pointRadius / radius;
+				BYTE blue = (originClr.blue*0.9*(1 - coff) + finishClr.blue*coff);
+				BYTE green = (originClr.green*0.9*(1 - coff) + finishClr.green*coff);
+				BYTE red = (originClr.red*0.9*(1 - coff) + finishClr.red*coff);
+				writeBMP24(blue, green, red, o);
+				o.write((char*)padding, size.padding);
+			}
+		}
+	}
+}
 
 template <class T1, class T2, class T3>
 void writeBMP24(T1& type, T2& file, T3& info, ofstream& o) {
@@ -201,7 +228,7 @@ void clrPicker(TRIPLEclr& clr) {
 
 void clrSet(TRIPLEclr& clr) {
 	int flag;
-	cout << "Выберите цвет:\n(1)Красный\n(2)Оранжевый\n(3)Жёлтый\n(4)Зелёный\n(5)Голубой\n(6)Синий\n(7)Фиолетовый\n(8)Чёрный\n(9)Белый\n";
+	cout << "Выберите цвет:\n(1)Красный\n(2)Оранжевый\n(3)Жёлтый\n(4)Зелёный\n(5)Голубой\n(6)Синий\n(7)Фиолетовый\n(8)Чёрный\n(9)Белый\n: ";
 	cin >> flag;
 	switch (flag) {
 	case 1:
@@ -232,7 +259,7 @@ void clrSet(TRIPLEclr& clr) {
 	case 6:
 		clr.red = 0;
 		clr.green = 0;
-		clr.blue = 0;
+		clr.blue = 255;
 		break;
 	case 7:
 		clr.red = 127;
@@ -280,7 +307,7 @@ void horizontal() {
 	cout << "\nВведите отступ конца градиента от левого края: ";
 	cin >> crd.x2;
 
-	cout << "Выберите тип ввода цвета: \n(1)RGB\n(2)По названию\n";
+	cout << "Выберите тип ввода цвета: \n(1)RGB\n(2)По названию\n: ";
 	cin >> flag;
 
 	switch (flag) {
@@ -330,7 +357,7 @@ void vertical() {
 	cout << "\nВведите отступ конца градиента от верхнего края: ";
 	cin >> crd.y2;
 
-	cout << "Выберите тип ввода цвета: \n(1)RGB\n(2)По названию\n";
+	cout << "Выберите тип ввода цвета: \n(1)RGB\n(2)По названию\n: ";
 	cin >> flag;
 
 	switch (flag) {
@@ -378,7 +405,7 @@ void freeLinear() {
 	cout << "\nВведите координаты конца градиента: ";
 	cin >> crd.x2 >> crd.y2;
 
-	cout << "Выберите тип ввода цвета: \n(1)RGB\n(2)По названию\n";
+	cout << "Выберите тип ввода цвета: \n(1)RGB\n(2)По названию\n: ";
 	cin >> flag;
 
 	switch (flag) {
@@ -425,7 +452,7 @@ void freeRadial() {
 	cout << "\nВведите координаты периферии градиента (радиус градиента): ";
 	cin >> crd.x2 >> crd.y2;
 
-	cout << "Выберите тип ввода цвета: \n(1)RGB\n(2)По названию\n";
+	cout << "Выберите тип ввода цвета: \n(1)RGB\n(2)По названию\n: ";
 	cin >> flag;
 
 	switch (flag) {
@@ -440,31 +467,4 @@ void freeRadial() {
 	}
 	writeCanvasRadial(crd, originClr, finishClr, o, size);
 	o.close();
-}
-
-void writeCanvasRadial(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, ofstream& o, canvasSize& size) {
-	BYTE padding[3] = { 0,0,0 };
-
-	int A = (crd.x2 - crd.x1);
-	int B = (crd.y2 - crd.y1);
-
-	double radius = sqrt(pow(A, 2) + pow(B, 2));
-
-	for (int i = 0; i < size.height; i++) {
-		for (int j = 0; j < size.width; j++) {
-			float pointRadius = sqrt(pow(abs(crd.x1 - j), 2) + pow(abs(crd.y1 - i), 2));
-			if (pointRadius > radius) {
-				writeBMP24(finishClr.blue, finishClr.green, finishClr.red, o);
-				o.write((char*)padding, size.padding);
-			}
-			else {
-				float coff = pointRadius / radius;
-				BYTE blue = (originClr.blue*0.9*(1 - coff) + finishClr.blue*coff);
-				BYTE green = (originClr.green*0.9*(1 - coff) + finishClr.green*coff);
-				BYTE red = (originClr.red*0.9*(1 - coff) + finishClr.red*coff);
-				writeBMP24(blue, green, red, o);
-				o.write((char*)padding, size.padding);
-			}
-		}
-	}
 }
