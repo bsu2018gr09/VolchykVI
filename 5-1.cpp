@@ -4,6 +4,8 @@
 
 */
 
+#define PI 3.1415927
+
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <fstream>
@@ -129,9 +131,9 @@ void writeCanvas(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, of
 				o.write((char*)padding, size.padding);
 			}
 			else {
-				BYTE blue = (originClr.blue*(C2 - C) + finishClr.blue*(C - C1)) / (C2 - C1);
-				BYTE green = (originClr.green*(C2 - C) + finishClr.green*(C - C1)) / (C2 - C1);
-				BYTE red = (originClr.red*(C2 - C) + finishClr.red*(C - C1)) / (C2 - C1);
+				BYTE blue = (originClr.blue*0.9*(C2 - C) / (C2 - C1) + finishClr.blue*0.9*(C - C1) / (C2 - C1));
+				BYTE green = (originClr.green*0.9*(C2 - C) / (C2 - C1) + finishClr.green*0.9*(C - C1) / (C2 - C1));
+				BYTE red = (originClr.red*0.9*(C2 - C) / (C2 - C1) + finishClr.red*0.9*(C - C1) / (C2 - C1));
 				writeBMP24(blue, green, red, o);
 				//fwrite(padding, 1, size.padding, o);
 				o.write((char*)padding, size.padding);
