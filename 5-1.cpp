@@ -4,8 +4,6 @@
 
 */
 
-#define PI 3.1415927
-
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <fstream>
@@ -72,7 +70,6 @@ public:
 	int padding;
 };
 
-
 template <class T1, class T2, class T3>
 void writeBMP24(T1&, T2&, T3&, ofstream&);
 template <class T>
@@ -81,28 +78,30 @@ template <class T>
 void delMem(T*);
 void getBMP24Header(BMPtype&, BMPFILEHeader&, BMPINFOHeader&, canvasSize&);
 void writeCanvas(GradCoords&, TRIPLEclr&, TRIPLEclr&, ofstream&, canvasSize&);
+void writeCanvasRadial(GradCoords&, TRIPLEclr&, TRIPLEclr&, ofstream&, canvasSize&);
 void getRode(char*&);
 void clrPicker(TRIPLEclr&);
 void clrSet(TRIPLEclr&);
 void horizontal();
 void vertical();
-void free();
-
+void freeLinear();
+void freeRadial();
 
 int main() {
 
 	setlocale(LC_ALL, "rus");
 
-	void(*fpoint[])() = { horizontal, vertical, free };
+	void(*fpoint[])() = { horizontal, vertical, freeLinear, freeRadial };
 
 	for (int i = 0; ;) {
 		cout << "0 - Горизонтальный линейный градиент\n";
 		cout << "1 - Вертикальный линейный градиент\n";
 		cout << "2 - Произвольный линейный градиент\n";
-		cout << "3 - Закрыть окно\n";
+		cout << "3 - Произвольный радиальный (новинка!) градиент\n";
+		cout << "4 - Закрыть окно\n";
 		cin >> i;
-		if (i == 3) break;
-		if (i >= 0 && i <= 3) { fpoint[i](); i = 0; };
+		if (i == 4) break;
+		if (i >= 0 && i < 4) { fpoint[i](); };
 	}
 
 	return 0;
@@ -122,20 +121,19 @@ void writeCanvas(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, of
 			int C = A * j + B * i;
 			if (C <= C1) {
 				writeBMP24(originClr.blue, originClr.green, originClr.red, o);
-				//fwrite(padding, 1, size.padding, o);
 				o.write((char*)padding, size.padding);
 			}
 			else if (C >= C2) {
 				writeBMP24(finishClr.blue, finishClr.green, finishClr.red, o);
-				//fwrite(padding, 1, size.padding, o);
 				o.write((char*)padding, size.padding);
 			}
 			else {
-				BYTE blue = (originClr.blue*0.9*(C2 - C) / (C2 - C1) + finishClr.blue*0.9*(C - C1) / (C2 - C1));
-				BYTE green = (originClr.green*0.9*(C2 - C) / (C2 - C1) + finishClr.green*0.9*(C - C1) / (C2 - C1));
-				BYTE red = (originClr.red*0.9*(C2 - C) / (C2 - C1) + finishClr.red*0.9*(C - C1) / (C2 - C1));
+				double coff1 = (C2 - C) / (C2 - C1);
+				double coff2 = (C - C1) / (C2 - C1);
+				BYTE blue = (originClr.blue*0.9*coff1 + finishClr.blue*0.9*coff2);
+				BYTE green = (originClr.green*0.9*coff1 + finishClr.green*0.9*coff2);
+				BYTE red = (originClr.red*0.9*coff1 + finishClr.red*0.9*coff2);
 				writeBMP24(blue, green, red, o);
-				//fwrite(padding, 1, size.padding, o);
 				o.write((char*)padding, size.padding);
 			}
 		}
@@ -145,9 +143,6 @@ void writeCanvas(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, of
 
 template <class T1, class T2, class T3>
 void writeBMP24(T1& type, T2& file, T3& info, ofstream& o) {
-	//fwrite(&type, 1, sizeof(type), o);
-	//fwrite(&file, 1, sizeof(file), o);
-	//fwrite(&info, 1, sizeof(info), o);
 	o.write((char*)&type, sizeof(type));
 	o.write((char*)&file, sizeof(file));
 	o.write((char*)&info, sizeof(info));
@@ -269,7 +264,6 @@ void horizontal() {
 	getRode(rode);
 
 	ofstream o(rode, ios::binary);
-	//FILE* o = fopen(rode, "wb");
 	delMem(rode);
 
 	crd.y1 = crd.y2 = 0;
@@ -301,7 +295,6 @@ void horizontal() {
 	}
 
 	writeCanvas(crd, originClr, finishClr, o, size);
-	//fclose(o);
 	o.close();
 }
 
@@ -321,7 +314,6 @@ void vertical() {
 	getRode(rode);
 
 	ofstream o(rode, ios::binary);
-	//FILE* o = fopen(rode, "wb");
 	delMem(rode);
 
 	crd.x1 = crd.x2 = 0;
@@ -353,11 +345,10 @@ void vertical() {
 	}
 
 	writeCanvas(crd, originClr, finishClr, o, size);
-	//fclose(o);
 	o.close();
 }
 
-void free() {
+void freeLinear() {
 	BMPtype type;
 	BMPFILEHeader file;
 	BMPINFOHeader info;
@@ -373,7 +364,6 @@ void free() {
 	getRode(rode);
 
 	ofstream o(rode, ios::binary);
-	//FILE* o = fopen(rode, "wb");
 	delMem(rode);
 
 	cout << "\nВведите размеры изображения (в пикселях ширина|высота): ";
@@ -402,6 +392,79 @@ void free() {
 		break;
 	}
 	writeCanvas(crd, originClr, finishClr, o, size);
-	//fclose(o);
 	o.close();
+}
+
+void freeRadial() {
+	BMPtype type;
+	BMPFILEHeader file;
+	BMPINFOHeader info;
+
+	TRIPLEclr originClr;
+	TRIPLEclr finishClr;
+	GradCoords crd;
+	canvasSize size;
+
+	int flag;
+	const int BUFF_SIZE = 128;
+	char* rode = getMem<char>(BUFF_SIZE);
+	getRode(rode);
+
+	ofstream o(rode, ios::binary);
+	delMem(rode);
+
+	cout << "\nВведите размеры изображения (в пикселях ширина|высота): ";
+	cin >> size.width >> size.height;
+
+	getBMP24Header(type, file, info, size);
+	writeBMP24(type, file, info, o);
+
+	cout << "\nВведите координаты центра градиента: ";
+	cin >> crd.x1 >> crd.y1;
+
+	cout << "\nВведите координаты периферии градиента (радиус градиента): ";
+	cin >> crd.x2 >> crd.y2;
+
+	cout << "Выберите тип ввода цвета: \n(1)RGB\n(2)По названию\n";
+	cin >> flag;
+
+	switch (flag) {
+	case 1:
+		clrPicker(originClr);
+		clrPicker(finishClr);
+		break;
+	case 2:
+		clrSet(originClr);
+		clrSet(finishClr);
+		break;
+	}
+	writeCanvasRadial(crd, originClr, finishClr, o, size);
+	o.close();
+}
+
+void writeCanvasRadial(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishClr, ofstream& o, canvasSize& size) {
+	BYTE padding[3] = { 0,0,0 };
+
+	int A = (crd.x2 - crd.x1);
+	int B = (crd.y2 - crd.y1);
+
+	double radius = sqrt(pow(A, 2) + pow(B, 2));
+
+	for (int i = 0; i < size.height; i++) {
+		for (int j = 0; j < size.width; j++) {
+			float pointRadius = sqrt(pow(abs(crd.x1 - j), 2) + pow(abs(crd.y1 - i), 2));
+			if (pointRadius > radius) {
+				writeBMP24(finishClr.blue, finishClr.green, finishClr.red, o);
+				o.write((char*)padding, size.padding);
+			}
+			else {
+				float coff = pointRadius / radius;
+				BYTE blue = (originClr.blue*0.9*(1 - coff) + finishClr.blue*coff);
+				BYTE green = (originClr.green*0.9*(1 - coff) + finishClr.green*coff);
+				BYTE red = (originClr.red*0.9*(1 - coff) + finishClr.red*coff);
+				writeBMP24(blue, green, red, o);
+				o.write((char*)padding, size.padding);
+			}
+		}
+	}
 }
