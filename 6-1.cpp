@@ -2,7 +2,7 @@
 
 	Класс арифметических дробей
 
-	(Пока что без автоматического сокращения на общий множитель)
+	(Пока что без автоматического сокращения на общий множитель) Без этого - шило ))))
 
 */
 
@@ -16,8 +16,8 @@ private:
 	int _denom;
 public:
 	Fraction() { 
-		_numer = 0;
-		_denom = 1;
+		_numer = 0;//что за колхоз???? Где список инициализации???
+		_denom = 1;//что за колхоз???? Где список инициализации???
 		//cout << "constructor works!\n"; 
 	}
 	
@@ -26,13 +26,13 @@ public:
 	}
 	
 	Fraction(int _numer, int _denom = 1) {
-		this->_numer = _numer;
-		this->_denom = _denom;
+		this->_numer = _numer;//что за колхоз???? Где список инициализации???
+		this->_denom = _denom;//что за колхоз???? Где список инициализации??? А где проверка, что 0 внизу?
 	}
 	
 	Fraction(Fraction& fr) {
 		//cout << "copy constructor works!\n";
-		this->_numer = fr._numer;
+		this->_numer = fr._numer; //что за колхоз???? Где список инициализации???
 		this->_denom = fr._denom;
 	}
 
@@ -44,7 +44,7 @@ public:
 		return *this;
 	}
 
-	Fraction& operator ++ () {
+	Fraction& operator ++ () { ////оппа. Ну ка расскажи мне что такое дробь (3/5)++
 		this->_numer += this->_denom;
 		return *this;
 	}
@@ -67,7 +67,7 @@ public:
 	}
 
 	Fraction operator + (const Fraction& fr) {
-		Fraction temp;
+		Fraction temp;// конструктор по умолчанию??? Никак не оптимизировать?
 		if (this->_denom != fr._denom) {
 			temp._numer = this->_numer*fr._denom + fr._numer*this->_denom;
 			temp._denom = this->_denom;
@@ -80,14 +80,14 @@ public:
 	}
 
 	Fraction operator + (const int n) {
-		Fraction temp;
+		Fraction temp;// конструктор по умолчанию??? Никак не оптимизировать?
 		temp._numer = this->_numer + n * this->_denom;
 		temp._denom = this->_denom;
 		return temp;
 	}
 
 	Fraction operator - (const Fraction& fr) {
-		Fraction temp;
+		Fraction temp;// конструктор по умолчанию??? Никак не оптимизировать?
 		if (this->_denom != fr._denom) { 
 			temp._numer = this->_numer*fr._denom - fr._numer*this->_denom;
 			temp._denom = this->_denom;
@@ -100,7 +100,7 @@ public:
 	}
 
 	Fraction operator - (const int n) {
-		Fraction temp;
+		Fraction temp; // конструктор по умолчанию??? Никак не оптимизировать?
 		temp._numer = this->_numer - n * this->_denom;
 		temp._denom = this->_denom;
 		return temp;
@@ -172,7 +172,7 @@ public:
 		return (this->_numer > fr._numer);
 	}
 
-	bool operator < (const Fraction& fr) {
+	bool operator < (const Fraction& fr) { // через > правильнее
 		if (this->_denom != fr._denom) {
 			return (this->_numer*fr._denom < fr._numer*this->_denom);
 		}
@@ -206,7 +206,7 @@ public:
 		return stream;
 	}
 
-	friend istream& operator >> (istream& stream, Fraction& fr) {
+	friend istream& operator >> (istream& stream, Fraction& fr) {//спорное решение
 		stream >> fr._numer;
 		stream >> fr._denom;
 		return stream;
