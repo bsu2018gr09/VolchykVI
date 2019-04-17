@@ -2,9 +2,9 @@
 
 	Класс арифметических дробей
 
-	(Пока что без автоматического сокращения на общий множитель) Без этого - шило ))))
 
 */
+
 
 #include <iostream>
 
@@ -15,25 +15,30 @@ private:
 	int _numer;
 	int _denom;
 public:
-	Fraction() { 
-		_numer = 0;//что за колхоз???? Где список инициализации???
-		_denom = 1;//что за колхоз???? Где список инициализации???
+	Fraction() : _numer{ 0 }, _denom{ 1 } {
 		//cout << "constructor works!\n"; 
 	}
-	
-	~Fraction() { 
+
+	~Fraction() {
 		//cout << "destructor works!\n"; 
 	}
-	
-	Fraction(int _numer, int _denom = 1) {
-		this->_numer = _numer;//что за колхоз???? Где список инициализации???
-		this->_denom = _denom;//что за колхоз???? Где список инициализации??? А где проверка, что 0 внизу?
+
+	Fraction(int numer, int denom = 1) : _numer{ numer }, _denom{ denom } {
+		if (!denom) { _denom = 1; cout << "denominator replaced with '1', because it was zero\n"; }
 	}
-	
-	Fraction(Fraction& fr) {
+
+	Fraction(const Fraction& fr) : _numer{ fr._numer }, _denom{ fr._denom } {
 		//cout << "copy constructor works!\n";
-		this->_numer = fr._numer; //что за колхоз???? Где список инициализации???
-		this->_denom = fr._denom;
+	}
+
+	int gcd(int a, int b) {
+		a = abs(a);
+		b = abs(b);
+		while (a != b) {
+			if (a > b) { swap(a, b); }
+			b = b - a;
+		}
+		return a;
 	}
 
 	const Fraction& operator=(const Fraction& fr) {
@@ -44,7 +49,7 @@ public:
 		return *this;
 	}
 
-	Fraction& operator ++ () { ////оппа. Ну ка расскажи мне что такое дробь (3/5)++
+	Fraction& operator ++ () {
 		this->_numer += this->_denom;
 		return *this;
 	}
@@ -67,63 +72,50 @@ public:
 	}
 
 	Fraction operator + (const Fraction& fr) {
-		Fraction temp;// конструктор по умолчанию??? Никак не оптимизировать?
 		if (this->_denom != fr._denom) {
-			temp._numer = this->_numer*fr._denom + fr._numer*this->_denom;
-			temp._denom = this->_denom;
+			int _gcd = gcd(this->_numer*fr._denom + fr._numer*this->_denom, this->_denom);
+			return Fraction((this->_numer*fr._denom + fr._numer*this->_denom) / _gcd, this->_denom / _gcd);
 		}
 		else {
-			temp._numer = this->_numer + fr._numer;
-			temp._denom = this->_denom;
+			int _gcd = gcd(this->_numer + fr._numer, this->_denom);
+			return Fraction((this->_numer + fr._numer) / _gcd, this->_denom / _gcd);
 		}
-		return temp;
 	}
 
 	Fraction operator + (const int n) {
-		Fraction temp;// конструктор по умолчанию??? Никак не оптимизировать?
-		temp._numer = this->_numer + n * this->_denom;
-		temp._denom = this->_denom;
-		return temp;
+		return Fraction(this->_numer + n * this->_denom, this->_denom);
 	}
 
 	Fraction operator - (const Fraction& fr) {
-		Fraction temp;// конструктор по умолчанию??? Никак не оптимизировать?
-		if (this->_denom != fr._denom) { 
-			temp._numer = this->_numer*fr._denom - fr._numer*this->_denom;
-			temp._denom = this->_denom;
+		int _gcd = gcd(this->_numer*fr._denom - fr._numer*this->_denom, this->_denom);
+		if (this->_denom != fr._denom) {
+			return Fraction((this->_numer*fr._denom - fr._numer*this->_denom) / _gcd, this->_denom / _gcd);
 		}
 		else {
-			temp._numer = this->_numer - fr._numer;
-			temp._denom = this->_denom;
+			int _gcd = gcd(this->_numer - fr._numer, this->_denom);
+			return Fraction((this->_numer - fr._numer) / _gcd, this->_denom / _gcd);
 		}
-		return temp;
 	}
 
 	Fraction operator - (const int n) {
-		Fraction temp; // конструктор по умолчанию??? Никак не оптимизировать?
-		temp._numer = this->_numer - n * this->_denom;
-		temp._denom = this->_denom;
-		return temp;
+		return Fraction(this->_numer - n * this->_denom, this->_denom);
 	}
 
 	Fraction operator * (const Fraction& fr) {
-		Fraction temp(this->_numer * fr._numer, this->_denom * fr._denom);
-		return temp;
+		return Fraction(this->_numer * fr._numer, this->_denom * fr._denom);
 	}
 
 	Fraction operator * (const int n) {
-		Fraction temp(this->_numer * n, this->_denom);
-		return temp;
+		int _gcd = gcd(this->_numer*n, this->_denom);
+		return Fraction(this->_numer * n / _gcd, this->_denom / _gcd);
 	}
 
 	Fraction operator / (const Fraction& fr) {
-		Fraction temp(this->_numer * fr._denom, this->_denom * fr._numer);
-		return temp;
+		return Fraction(this->_numer * fr._denom, this->_denom * fr._numer);
 	}
 
 	Fraction operator / (const int n) {
-		Fraction temp(this->_numer, this->_denom * n);
-		return temp;
+		return Fraction(this->_numer, this->_denom * n);
 	}
 
 	Fraction& operator - () {
@@ -172,11 +164,8 @@ public:
 		return (this->_numer > fr._numer);
 	}
 
-	bool operator < (const Fraction& fr) { // через > правильнее
-		if (this->_denom != fr._denom) {
-			return (this->_numer*fr._denom < fr._numer*this->_denom);
-		}
-		return (this->_numer < fr._numer);
+	bool operator < (const Fraction& fr) {
+		return !(*this > fr);
 	}
 
 	bool operator == (const Fraction& fr) {
@@ -206,7 +195,7 @@ public:
 		return stream;
 	}
 
-	friend istream& operator >> (istream& stream, Fraction& fr) {//спорное решение
+	friend istream& operator >> (istream& stream, Fraction& fr) { /*    Думаю добавить поддержку ввода сплошной строки    */
 		stream >> fr._numer;
 		stream >> fr._denom;
 		return stream;
@@ -215,12 +204,12 @@ public:
 
 int main() {
 
-	Fraction num1, num2(2,5), num3(1,5);
+	Fraction num1, num2(2, 4), num3(6, 4);
 	Fraction *ptr1, *ptr2;
 	Fraction arr[5];
 	ptr2 = new (nothrow) Fraction[10];
 
-	cout << "Objects\n\n";
+	cout << "Object\n\n";
 	cout << num2 + num3 << endl;
 	cout << num2 - num3 << endl;
 	cout << num2 * num3 << endl;
@@ -236,7 +225,7 @@ int main() {
 	cout << (num2 <= num3) << endl;
 	cout << num3 + 10 << endl;
 	cout << num3 - 10 << endl;
-	cout << num3 * 10 << endl; 
+	cout << num3 * 10 << endl;
 	cout << num3 / 10 << endl;
 	cout << -num3 << endl;
 
@@ -268,7 +257,7 @@ int main() {
 
 	ptr2[5] = arr[0];
 
-	cout << arr[0] + *ptr1 + num3 +ptr2[5] << endl;
+	cout << arr[0] + *ptr1 + num3 + ptr2[5] << endl;
 
 
 	system("pause");
