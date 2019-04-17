@@ -2,9 +2,7 @@
 
 	Класс арифметических дробей
 
-
 */
-
 
 #include <iostream>
 
@@ -23,11 +21,11 @@ public:
 		//cout << "destructor works!\n"; 
 	}
 
-	Fraction(int numer, int denom = 1) : _numer{ numer }, _denom{ denom } {
+	Fraction(int numer, int denom = 1) : _numer{ numer / gcd(numer, denom) }, _denom{ denom / gcd(numer, denom) } {
 		if (!denom) { _denom = 1; cout << "denominator replaced with '1', because it was zero\n"; }
 	}
 
-	Fraction(const Fraction& fr) : _numer{ fr._numer }, _denom{ fr._denom } {
+	Fraction(const Fraction& fr) : _numer{ fr._numer / gcd(fr._numer, fr._denom) }, _denom{ fr._denom / gcd(fr._numer, fr._denom) } {
 		//cout << "copy constructor works!\n";
 	}
 
@@ -83,12 +81,13 @@ public:
 	}
 
 	Fraction operator + (const int n) {
-		return Fraction(this->_numer + n * this->_denom, this->_denom);
+		int _gcd = gcd(this->_numer + n * this->_denom, this->_denom);
+		return Fraction((this->_numer + n * this->_denom) / _gcd, this->_denom / _gcd);
 	}
 
 	Fraction operator - (const Fraction& fr) {
-		int _gcd = gcd(this->_numer*fr._denom - fr._numer*this->_denom, this->_denom);
 		if (this->_denom != fr._denom) {
+			int _gcd = gcd(this->_numer*fr._denom - fr._numer*this->_denom, this->_denom);
 			return Fraction((this->_numer*fr._denom - fr._numer*this->_denom) / _gcd, this->_denom / _gcd);
 		}
 		else {
@@ -98,11 +97,13 @@ public:
 	}
 
 	Fraction operator - (const int n) {
-		return Fraction(this->_numer - n * this->_denom, this->_denom);
+		int _gcd = gcd(this->_numer - n * this->_denom, this->_denom);
+		return Fraction((this->_numer - n * this->_denom) / _gcd, this->_denom / _gcd);
 	}
 
 	Fraction operator * (const Fraction& fr) {
-		return Fraction(this->_numer * fr._numer, this->_denom * fr._denom);
+		int _gcd = gcd(this->_numer * fr._numer, this->_denom * fr._denom);
+		return Fraction(this->_numer * fr._numer / _gcd, this->_denom * fr._denom / _gcd);
 	}
 
 	Fraction operator * (const int n) {
@@ -115,7 +116,8 @@ public:
 	}
 
 	Fraction operator / (const int n) {
-		return Fraction(this->_numer, this->_denom * n);
+		int _gcd = gcd(this->_numer, this->_denom * n);
+		return Fraction(this->_numer / _gcd, this->_denom * n / _gcd);
 	}
 
 	Fraction& operator - () {
@@ -133,6 +135,8 @@ public:
 		}
 		else
 			this->_numer += fr._numer;
+		this->_numer /= gcd(this->_numer, this->_denom);
+		this->_denom /= gcd(this->_numer, this->_denom);
 		return *this;
 	}
 
@@ -142,18 +146,22 @@ public:
 		}
 		else
 			this->_numer -= fr._numer;
+		this->_numer /= gcd(this->_numer, this->_denom);
+		this->_denom /= gcd(this->_numer, this->_denom);
 		return *this;
 	}
 
 	Fraction& operator *= (const Fraction& fr) {
-		this->_numer *= fr._numer;
-		this->_denom *= fr._denom;
+		int _gcd = gcd(this->_numer * fr._numer, this->_denom * fr._denom);
+		this->_numer *= fr._numer / _gcd;
+		this->_denom *= fr._denom / _gcd;
 		return *this;
 	}
 
 	Fraction& operator /= (const Fraction& fr) {
-		this->_numer *= fr._denom;
-		this->_denom *= fr._numer;
+		int _gcd = gcd(this->_numer * fr._denom, this->_numer * fr._denom);
+		this->_numer *= fr._denom / _gcd;
+		this->_denom *= fr._numer / _gcd;
 		return *this;
 	}
 
