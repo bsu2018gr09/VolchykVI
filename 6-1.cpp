@@ -29,7 +29,7 @@ public:
 		//cout << "copy constructor works!\n";
 	}
 
-	int gcd(int a, int b) {
+	int gcd(int a, int b) {// в public? Реально???? А зачем????
 		a = abs(a);
 		b = abs(b);
 		while (a != b) {
