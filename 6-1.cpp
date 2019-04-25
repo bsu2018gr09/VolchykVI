@@ -13,6 +13,8 @@ private:
 	int _numer;
 	int _denom;
 	int gcd(int a, int b) {
+		if (!a || !b)
+			return 1;
 		a = abs(a);
 		b = abs(b);
 		while (a != b) {
@@ -30,11 +32,11 @@ public:
 		//cout << "destructor works!\n"; 
 	}
 
-	Fraction(int numer, int denom = 1) : _numer{ numer / gcd(numer, denom) }, _denom{ denom / gcd(numer, denom) } {// уверен, что всегда и везде сработает??
-		if (!denom) { _denom = 1; cout << "denominator replaced with '1', because it was zero\n"; }
+	Fraction(int numer, int denom = 1) : _numer{ numer / gcd(numer, denom) }, _denom{ denom / gcd(numer, denom) } {  // уверен, что всегда и везде сработает??
+		if (!denom) { _denom = 1; cout << "denominator replaced by '1', because it was zero\n"; }
 	}
 
-	Fraction(const Fraction& fr) : _numer{ fr._numer / gcd(fr._numer, fr._denom) }, _denom{ fr._denom / gcd(fr._numer, fr._denom) } {//это точно лишнее!!!! Подумай почему
+	Fraction(const Fraction& fr) : _numer{ fr._numer }, _denom{ fr._denom } {  //это точно лишнее!!!! Подумай почему
 		//cout << "copy constructor works!\n";
 	}
 
@@ -148,8 +150,9 @@ public:
 		}
 		else
 			this->_numer -= fr._numer;
-		this->_numer /= gcd(this->_numer, this->_denom);
-		this->_denom /= gcd(this->_numer, this->_denom);
+		int _gcd = gcd(this->_numer, this->_denom);
+		this->_numer /= _gcd;
+		this->_denom /= _gcd;
 		return *this;
 	}
 
@@ -161,9 +164,9 @@ public:
 	}
 
 	Fraction& operator /= (const Fraction& fr) {
-		int _gcd = gcd(this->_numer * fr._denom, this->_numer * fr._denom);
-		this->_numer *= fr._denom / _gcd;
-		this->_denom *= fr._numer / _gcd;
+		int _gcd = gcd(this->_numer * fr._denom, this->_denom * fr._numer);
+		this->_numer = (this->_numer * fr._denom) / _gcd;
+		this->_denom = (this->_denom * fr._numer) / _gcd;
 		return *this;
 	}
 
