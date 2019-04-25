@@ -12,6 +12,15 @@ class Fraction {
 private:
 	int _numer;
 	int _denom;
+	int gcd(int a, int b) {
+		a = abs(a);
+		b = abs(b);
+		while (a != b) {
+			if (a > b) { swap(a, b); }
+			b = b - a;
+		}
+		return a;
+	}
 public:
 	Fraction() : _numer{ 0 }, _denom{ 1 } {
 		//cout << "constructor works!\n"; 
@@ -27,16 +36,6 @@ public:
 
 	Fraction(const Fraction& fr) : _numer{ fr._numer / gcd(fr._numer, fr._denom) }, _denom{ fr._denom / gcd(fr._numer, fr._denom) } {
 		//cout << "copy constructor works!\n";
-	}
-
-	int gcd(int a, int b) {// в public? Реально???? А зачем????
-		a = abs(a);
-		b = abs(b);
-		while (a != b) {
-			if (a > b) { swap(a, b); }
-			b = b - a;
-		}
-		return a;
 	}
 
 	const Fraction& operator=(const Fraction& fr) {
@@ -89,6 +88,9 @@ public:
 		if (this->_denom != fr._denom) {
 			int _gcd = gcd(this->_numer*fr._denom - fr._numer*this->_denom, this->_denom);
 			return Fraction((this->_numer*fr._denom - fr._numer*this->_denom) / _gcd, this->_denom / _gcd);
+		}
+		else if (&fr == this) {
+			return Fraction();
 		}
 		else {
 			int _gcd = gcd(this->_numer - fr._numer, this->_denom);
@@ -203,10 +205,23 @@ public:
 		return stream;
 	}
 
-	friend istream& operator >> (istream& stream, Fraction& fr) { /*    Думаю добавить поддержку ввода сплошной строки    */
-		stream >> fr._numer;
-		stream >> fr._denom;
-		return stream;
+	friend istream& operator >> (istream& stream, Fraction& fr) {
+		char buff1[256];
+		char buff2[256];
+		stream >> buff1;
+		if (strchr(buff1, '\\') || strchr(buff1, '/') || strchr(buff1, '|')) {
+			char* nextptr;
+			const char* num = strtok_s(buff1, " \\/|", &nextptr);
+			fr._numer = atoi(num);
+			fr._denom = atoi(nextptr);
+			return stream;
+		}
+		else {
+			stream >> buff2;
+			fr._numer = atoi(buff1);
+			fr._denom = atoi(buff2);
+			return stream;
+		}
 	}
 };
 
@@ -266,6 +281,11 @@ int main() {
 	ptr2[5] = arr[0];
 
 	cout << arr[0] + *ptr1 + num3 + ptr2[5] << endl;
+
+	cout << "\nEnter fraction: ";
+	cin >> num1;
+	cout << endl << num1 * 2 << endl;
+	cout << (num1 - num1) << endl;
 
 
 	system("pause");
