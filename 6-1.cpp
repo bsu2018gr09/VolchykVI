@@ -34,6 +34,7 @@ public:
 
 	Fraction(int numer, int denom = 1) : _numer{ numer / gcd(numer, denom) }, _denom{ denom / gcd(numer, denom) } {  // уверен, что всегда и везде сработает??
 		if (!denom) { _denom = 1; cout << "denominator replaced by '1', because it was zero\n"; }
+		if ((_denom < 0 && _numer < 0) || (_denom < 0 && _numer >= 0)) { _denom = -_denom; _numer = -_numer; }
 	}
 
 	Fraction(const Fraction& fr) : _numer{ fr._numer }, _denom{ fr._denom } {  //это точно лишнее!!!! Подумай почему
