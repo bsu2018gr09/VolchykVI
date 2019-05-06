@@ -97,7 +97,7 @@ void thirdInput() {
 	fillWithHand(X, r, c);
 	printMatr(X, r, c);
 	sortByMP(X, r, c);
-	sortColls(X, r, c, p);
+	sortColls(X, r, c, p);//меняются местами не столбцы, а элементы. Как в первом семестре!!!
 	printMatr(X, r, c);
 
 	delMatr(X, c);
