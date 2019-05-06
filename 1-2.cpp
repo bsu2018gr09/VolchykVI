@@ -60,7 +60,7 @@ void sortPos(int* A, int N) {
 		if (*(A + i) >= 0)
 			swap(*(A + i), *(A + k++));
 	}
-	movingArray(A, N, (i - k));
+	movingArray(A, N, (i - k));// совсем никакой оптимизации (((
 }
 
 void getRange(int& min, int& max) {
