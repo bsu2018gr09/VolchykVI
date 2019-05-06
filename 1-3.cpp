@@ -47,7 +47,7 @@ void printAr(int* A, const int N)
 	cout << endl;
 }
 
-bool isSimple(int n) {
+bool isSimple(int n) {// простое число - это prime!!!!!!
 
 	if (abs(n) == 2) {
 		return true;
@@ -71,7 +71,7 @@ void sortSimples(int* A, const int N)
 		int* simpBefore = nullptr;
 		for (int* j = A; j < A + N; j++)
 		{
-			if (simpNow && isSimple(*j) && (*j < *simpNow))
+			if (simpNow && isSimple(*j) && (*j < *simpNow)) //совсем медленно
 			{
 				swap(*simpNow, *j);
 				simpBefore = simpNow;
