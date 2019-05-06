@@ -35,7 +35,7 @@ int main() {
 	int posOth = 0;
 	int posVow = 0;
 
-	cin.getline(buff, BUFF_SIZE);
+	cin.getline(buff, BUFF_SIZE);//не из файла!!! Проверить не могу ))))
 	sortStr(buff, vowelStr, otherStr, posVow, posOth);
 
 	printStr(otherStr, posOth);
