@@ -56,7 +56,7 @@ void outputPoints(int* X, int* Y, double* S, int N) {
 	cout << endl;
 }
 
-void sortPoints(int *X, int *Y, double *S, int N) {
+void sortPoints(int *X, int *Y, double *S, int N) {// совсем никакой оптимизации (((
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N - 1 - i; j++) {
 			if (*(S + j) > *(S + j + 1)) {
@@ -75,7 +75,7 @@ void getCoffs(double& a, double& b, double& c) {
 
 void findDistance(double* S, int* X, int* Y, int N, double a, double b, double c) {
 	while (N-- > 0) {
-		*(S++) = (abs(*(X++)*a + *(Y++)*b + c) / sqrt((a*a) + (b*b)));
+		*(S++) = (abs(*(X++)*a + *(Y++)*b + c) / sqrt((a*a) + (b*b)));// совсем никакой оптимизации. Позор ((( 
 	}
 }
 
