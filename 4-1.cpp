@@ -97,7 +97,7 @@ void logic(int& maxWords, int& maxPos, char**& cmpStr, char**& tmpStr, char*& bu
 
 void prntArr(char**& str, const int size, ofstream& out) {
 	for (int i = 0; i < size; i++) {
-		out << *(str + i) << ' ';
+		out << *(str + i) << ' ';//у меня тут ничего не печатает
 	}
 	out << endl;
 }
