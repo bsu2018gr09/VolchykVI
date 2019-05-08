@@ -10,8 +10,8 @@ using namespace std;
 
 const int TMP_SIZE = 100;
 const int BUFF_SIZE = 1024;
-const char* LOCATION_INP = "D:/Repositos/input.txt";
-const char* LOCATION_OUT = "D:/Repositos/output.txt";
+const char* LOCATION_INP = "D:/input.txt";
+const char* LOCATION_OUT = "D:/output.txt";
 
 void checkInp(ifstream&);
 void checkOut(ofstream&);
@@ -97,7 +97,7 @@ void logic(int& maxWords, int& maxPos, char**& cmpStr, char**& tmpStr, char*& bu
 
 void prntArr(char**& str, const int size, ofstream& out) {
 	for (int i = 0; i < size; i++) {
-		out << *(str + i) << ' ';//у меня тут ничего не печатает
+		out << *(str + i) << ' ';
 	}
 	out << endl;
 }
