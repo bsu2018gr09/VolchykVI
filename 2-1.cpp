@@ -24,7 +24,7 @@ void getRange(int&, int&);
 void printMatr(int**, const int, const int);
 void getMatrSize(int&, int&);
 void getP(int&);
-void sortColls(int**, const int, const int, const int);
+void sortElsInColl(int**, const int, const int, const int);
 void insertSort(int*, const int);
 void sortByMP(int**, const int, const int);
 void firstInput();
@@ -65,7 +65,7 @@ void firstInput() {
 	fillWithFile(X, r, c, input);
 	printMatr(X, r, c);
 	sortByMP(X, r, c);
-	sortColls(X, r, c, p);
+	sortElsInColl(X, r, c, p);
 	printMatr(X, r, c);
 
 	delMatr(X, c);
@@ -83,7 +83,7 @@ void secondInput() {
 	fillWithRand(X, min, max, r, c);
 	printMatr(X, r, c);
 	sortByMP(X, r, c);
-	sortColls(X, r, c, p);
+	sortElsInColl(X, r, c, p);
 	printMatr(X, r, c);
 
 	delMatr(X, c);
@@ -97,7 +97,7 @@ void thirdInput() {
 	fillWithHand(X, r, c);
 	printMatr(X, r, c);
 	sortByMP(X, r, c);
-	sortColls(X, r, c, p);//меняются местами не столбцы, а элементы. Как в первом семестре!!!
+	sortElsInColl(X, r, c, p);
 	printMatr(X, r, c);
 
 	delMatr(X, c);
@@ -142,7 +142,7 @@ void insertSort(int* A, const int N)
 	}
 }
 
-void sortColls(int** M, const int r, const int c, const int p)
+void sortElsInColl(int** M, const int r, const int c, const int p)
 {
 	int max;
 	for (int i = 0; i < c; i++)
