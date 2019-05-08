@@ -11,27 +11,44 @@
 using namespace std;
 
 
-int* constructor(int);
+typedef struct Primes {
+	int* num;
+	int* pos;
+	int size;
+};
+
+void getMem(int*&, const int&);
 int getSize();
 void destructor(int*);
-int getSize();
 void fillWithRand(int*, int, const int, const int);
 void getRange(int&, int&);
-void sortSimples(int*, const int);
-bool isSimple(int);
-void printAr(int*, const int);
+bool isPrime(int);
+void printAr(int*, int);
+
+int countPrimes(int*, const int&);
+void getPrimes(Primes&, int*, const int&);
+void sortPrimes(Primes&);
+void insPrimes(Primes&, int*);
 
 int main() {
 
 	setlocale(LC_ALL, "rus");
 	srand(time(0));
-
+	Primes P;
 	int N = getSize(), min, max;
-	int* X = constructor(N);
+	int* X = nullptr;
+	getMem(X, N);
 	getRange(min, max);
 	fillWithRand(X, N, min, max);
 	printAr(X, N);
-	sortSimples(X, N);
+
+	P.size = countPrimes(X, N);
+	getMem(P.num, P.size);
+	getMem(P.pos, P.size);
+
+	getPrimes(P, X, N);
+	sortPrimes(P);
+	insPrimes(P, X);
 	printAr(X, N);
 
 	destructor(X);
@@ -47,7 +64,7 @@ void printAr(int* A, const int N)
 	cout << endl;
 }
 
-bool isSimple(int n) {// простое число - это prime!!!!!!
+bool isPrime(int n) {
 
 	if (abs(n) == 2) {
 		return true;
@@ -64,25 +81,33 @@ bool isSimple(int n) {// простое число - это prime!!!!!!
 	return true;
 }
 
-void sortSimples(int* A, const int N)
-{
-	for (int i = 0; i < N; i++) {
-		int* simpNow = nullptr;
-		int* simpBefore = nullptr;
-		for (int* j = A; j < A + N; j++)
-		{
-			if (simpNow && isSimple(*j) && (*j < *simpNow)) //совсем медленно
-			{
-				swap(*simpNow, *j);
-				simpBefore = simpNow;
-				simpNow = j;
-			}
-			else if (isSimple(*j))
-			{
-				simpBefore = simpNow;
-				simpNow = j;
-			}
+int countPrimes(int* A, const int& N) {
+	int size{ 0 };
+	for (int i = 0; i < N; i++) { if (isPrime(*(A + i))) size++; }
+	return size;
+}
+
+void getPrimes(Primes& P, int* A, const int& N) {
+	for (int i = 0, j = 0; i < N; i++) {
+		if (isPrime(A[i])) {
+			P.num[j] = *(A + i);
+			P.pos[j] = i;
+			j++;
 		}
+	}
+}
+
+void sortPrimes(Primes& P) {
+	for (int i = 0; i < P.size; i++) {
+		for (int j = i; j > 0 && P.num[j] < P.num[j - 1]; j--) {
+			swap(P.num[j], P.num[j - 1]);
+		}
+	}
+}
+
+void insPrimes(Primes& P, int* A) {
+	for (int i = 0; i < P.size; i++) {
+		A[P.pos[i]] = P.num[i];
 	}
 }
 
@@ -91,7 +116,6 @@ void getRange(int& min, int& max)
 	cout << "Введите диапазон значений (a,b): ";
 	cin >> min >> max;
 }
-
 
 void fillWithRand(int* A, int N, const int min, const int max)
 {
@@ -112,11 +136,10 @@ void destructor(int* A) {
 	A = nullptr;
 }
 
-int* constructor(int N) {
-	int* A = new (nothrow) int[N];
-	if (!A) {
+void getMem(int*& ptr, const int& size) {
+	ptr = new (nothrow) int[size];
+	if (!ptr) {
 		cout << "Ошибка выделения памяти!\n";
 		exit(1);
 	}
-	return A;
 }
