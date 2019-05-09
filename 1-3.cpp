@@ -51,6 +51,8 @@ int main() {
 	insPrimes(P, X);
 	printAr(X, N);
 
+	destructor(P.num);
+	destructor(P.pos);
 	destructor(X);
 	system("pause");
 	return 0;
