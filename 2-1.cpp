@@ -76,7 +76,7 @@ void secondInput() {
 	int min, max, r, c, p;
 	r = rand() % 100;
 	c = rand() % 100;
-	min = rand() % 100 - 50;
+	min = (rand() % 10) - 50;
 	max = rand() % 100 - 50;
 	p = rand() % 100 - 50;
 	int** X = getMemMatr(r, c);
@@ -121,15 +121,14 @@ void sortByMP(int** M, const int r, const int c)
 	for (int i = 1; i < c; i++) {
 		for (int j = i; j >= 0 && *(A + j - 1) > *(A + j); j--) {
 			swap(*(A + j), *(A + j - 1));
-			for (int k = 0; k < r; k++) {
-				swap(*(*(M + j) + k), *(*(M + j - 1) + k));
-			}
+			swap(*(M + j), *(M + j - 1));
 		}
 	}
 
 	delete[] A;
 	A = nullptr;
 }
+
 
 void insertSort(int* A, const int N)
 {
