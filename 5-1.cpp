@@ -151,16 +151,17 @@ void writeCanvasRadial(GradCoords& crd, TRIPLEclr& originClr, TRIPLEclr& finishC
 
 	for (int i = 0; i < size.height; i++) {
 		for (int j = 0; j < size.width; j++) {
-			float pointRadius = sqrt(pow(abs(crd.x1 - j), 2) + pow(abs(crd.y1 - i), 2));
+			double pointRadius = sqrt(pow(abs(crd.x1 - j), 2) + pow(abs(crd.y1 - i), 2));
+			double coff = (pointRadius / radius) * 3.14159268;
+			double f = (1 - cos(coff)) / 2;
 			if (pointRadius > radius) {
 				writeBMP24(finishClr.blue, finishClr.green, finishClr.red, o);
 				o.write((char*)padding, size.padding);
 			}
 			else {
-				float coff = pointRadius / radius;
-				BYTE blue = (originClr.blue*0.9*(1 - coff) + finishClr.blue*coff);
-				BYTE green = (originClr.green*0.9*(1 - coff) + finishClr.green*coff);
-				BYTE red = (originClr.red*0.9*(1 - coff) + finishClr.red*coff);
+				BYTE blue = (originClr.blue*(1 - f) + finishClr.blue*f);
+				BYTE green = (originClr.green*(1 - f) + finishClr.green*f);
+				BYTE red = (originClr.red*(1 - f) + finishClr.red*f);
 				writeBMP24(blue, green, red, o);
 				o.write((char*)padding, size.padding);
 			}
