@@ -135,14 +135,14 @@ void checkInp(ifstream& inp)
 void writeIntoArray(char*& orig, char** dest, int& pos, int& count)
 {
 	char* nexttoken = NULL;
-	char* word = strtok_s(orig, " ,.-()\t;", &nexttoken);
+	char* word = strtok_s(orig, " ,.-()\t;/|\\\"'", &nexttoken);
 	while (word != NULL)
 	{
 		int wordSize = strlen(word);
 		getMem(*(dest + pos), wordSize + 1);
 		strcpy_s(*(dest + pos), wordSize + 1, word);
 		pos++;
-		word = strtok_s(NULL, " ,.-()\t;", &nexttoken);
+		word = strtok_s(NULL, " ,.-()\t;/|\\\"'", &nexttoken);
 	}
 }
 
