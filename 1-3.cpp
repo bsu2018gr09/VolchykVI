@@ -11,48 +11,28 @@
 using namespace std;
 
 
-typedef struct Primes {
-	int* num;
-	int* pos;
-	int size;
-};
-
-void getMem(int*&, const int&);
+int* constructor(int);
 int getSize();
 void destructor(int*);
+int getSize();
 void fillWithRand(int*, int, const int, const int);
 void getRange(int&, int&);
+void sortPrimes(int*, const int);
 bool isPrime(int);
-void printAr(int*, int);
-
-int countPrimes(int*, const int&);
-void getPrimes(Primes&, int*, const int&);
-void sortPrimes(Primes&);
-void insPrimes(Primes&, int*);
+void printAr(int*, const int);
 
 int main() {
 
 	setlocale(LC_ALL, "rus");
 	srand(time(0));
-	Primes P;
+
 	int N = getSize(), min, max;
-	int* X = nullptr;
-	getMem(X, N);
+	int* X = constructor(N);
 	getRange(min, max);
 	fillWithRand(X, N, min, max);
+	sortPrimes(X, N);
 	printAr(X, N);
 
-	P.size = countPrimes(X, N);
-	getMem(P.num, P.size);
-	getMem(P.pos, P.size);
-
-	getPrimes(P, X, N);
-	sortPrimes(P);
-	insPrimes(P, X);
-	printAr(X, N);
-
-	destructor(P.num);
-	destructor(P.pos);
 	destructor(X);
 	system("pause");
 	return 0;
@@ -83,33 +63,30 @@ bool isPrime(int n) {
 	return true;
 }
 
-int countPrimes(int* A, const int& N) {
-	int size{ 0 };
-	for (int i = 0; i < N; i++) { if (isPrime(*(A + i))) size++; }
-	return size;
-}
-
-void getPrimes(Primes& P, int* A, const int& N) {
-	for (int i = 0, j = 0; i < N; i++) {
-		if (isPrime(A[i])) {
-			P.num[j] = *(A + i);
-			P.pos[j] = i;
-			j++;
+void sortPrimes(int* A, const int N)
+{
+	int amount = N - 1;
+	for (int i = 0; i < N; i++) {
+		int flag = 0;
+		int* primeNow = nullptr;
+		int* primeBefore = nullptr;
+		for (int* j = A; j < A + amount; j++)
+		{
+			if (primeNow && isPrime(*j) && (*j < *primeNow))
+			{
+				flag = 1;
+				swap(*primeNow, *j);
+				primeBefore = primeNow;
+				primeNow = j;
+			}
+			else if (isPrime(*j))
+			{
+				primeBefore = primeNow;
+				primeNow = j;
+			}
 		}
-	}
-}
-
-void sortPrimes(Primes& P) {
-	for (int i = 0; i < P.size; i++) {
-		for (int j = i; j > 0 && P.num[j] < P.num[j - 1]; j--) {
-			swap(P.num[j], P.num[j - 1]);
-		}
-	}
-}
-
-void insPrimes(Primes& P, int* A) {
-	for (int i = 0; i < P.size; i++) {
-		A[P.pos[i]] = P.num[i];
+		amount = primeBefore - A;
+		if (!flag) break;
 	}
 }
 
@@ -118,6 +95,7 @@ void getRange(int& min, int& max)
 	cout << "Введите диапазон значений (a,b): ";
 	cin >> min >> max;
 }
+
 
 void fillWithRand(int* A, int N, const int min, const int max)
 {
@@ -138,10 +116,11 @@ void destructor(int* A) {
 	A = nullptr;
 }
 
-void getMem(int*& ptr, const int& size) {
-	ptr = new (nothrow) int[size];
-	if (!ptr) {
+int* constructor(int N) {
+	int* A = new (nothrow) int[N];
+	if (!A) {
 		cout << "Ошибка выделения памяти!\n";
 		exit(1);
 	}
+	return A;
 }
