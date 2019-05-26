@@ -113,7 +113,7 @@ void sortByMP(int** M, const int r, const int c)
 		{
 			if (*(*(M + i) + j) < 0 && *(*(M + i) + j + 1) >= 0 || *(*(M + i) + j) >= 0 && *(*(M + i) + j + 1) < 0)
 			{
-				*(A + i) += 1;
+				*(A + i)++;
 			}
 		}
 	}
